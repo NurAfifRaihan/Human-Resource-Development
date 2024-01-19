@@ -28,7 +28,7 @@ async store(req, res) {
      //jika data unfined maka kirim response error
      if (!name || !gander || !phone || !address || !email || !status ||!hired_on){
          const data = {
-             message : "Semua data harus dikirim"
+             message : " 422"
          };
  
          return res.status(422).json(data);
@@ -87,7 +87,7 @@ async show(req, res) {
   if (employees) {
       const data = {
           message: "Menampilkan detail data pegawai",
-          data: employee,
+          data: employees,
       };
 
       res.status(200).json(data);
@@ -130,6 +130,53 @@ async destroy(req, res) {
       };
 
       res.status(404).json(data);
+  }
+}
+
+async search(req, res) {
+  try {
+    const { name } = req.params;
+    const employees = await Employee.searchByName(name);
+
+    if (employees) {
+      const data = {
+        message: "Menampilkan hasil pencarian nama sesuai resource",
+        data: employees,
+      };
+      res.status(200).json(data);
+    } else {
+      const data = {
+        message: "Resource not found",
+      };
+      res.status(404).json(data);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: 'Internal Server Error',
+      error: error.message,
+    });
+  }
+}
+async status(req, res) {
+  try {
+    const { status } = req.params;
+
+    // Panggil metode pencarian berdasarkan status dari model Employee
+    const searchResults = await Employee.status(status);
+
+    // Kirim hasil pencarian sebagai respons JSON
+    res.json({
+      message: `search results for employees with status: ${status}`,
+      data: searchResults,
+    });
+  } catch (error) {
+    // Tangani kesalahan jika terjadi
+    console.error(error);
+    res.status(500).json({
+      message: 'Internal Server Error',
+      error: error.message,
+    });
   }
 }
 
